@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Tag der offenen Flaschen – Schätzspiel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Font for modern typography -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-color: #F9F9F9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    .logo {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+    .logo img {
+      height: 60px;
+    }
+    h1 {
+      color: #688F68;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #688F68;
+      margin-top: 0;
+    }
+    p.description {
+      color: #555;
+      margin-bottom: 20px;
+      line-height: 1.4em;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.2em;
+      border: 2px solid #688F68;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+      background-color: #FFF;
+    }
+    button {
+      background-color: #688F68;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 20px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #577957;
+    }
+    #resultContainer {
+      display: none;
+      margin-top: 20px;
+    }
+    .qr-wrapper {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .code-number {
+      font-size: 1.4em;
+      margin-top: 10px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Edvin‑Logo oben links -->
+    <div class="logo">
+      <!-- Das Logo wird von der offiziellen Webseite eingebunden -->
+      <img src="https://edvinweine.ch/_next/static/images/edvin-9e79d2d0cfeae256c335deb0fac121d7.svg" alt="Edvin Logo">
+    </div>
+    <h1>Tag der offenen Flaschen – Schätzspiel</h1>
+    <p class="description">
+      Wie viele Gläser werden über die beiden Eventtage durch die „Ring&nbsp;for&nbsp;Champagne“-Booth gehen?
+      Gib deine Schätzung hier ein und erhalte einen QR‑Code für <strong>50&nbsp;% Rabatt auf einen Drink&nbsp;nach&nbsp;Wahl</strong>.
+    </p>
+    <div id="formContainer">
+      <input type="number" id="guessInput" placeholder="Deine Schätzung…" min="1">
+      <button id="submitBtn">Schätzung abgeben</button>
+    </div>
+    <div id="resultContainer">
+      <h2>Vielen Dank!</h2>
+      <p>Hier ist dein QR‑Code. Bitte zeige diesen Code an der Bar, um <strong>50&nbsp;% Rabatt auf einen Drink&nbsp;nach&nbsp;Wahl</strong> zu erhalten. Jeder Code ist nur einmal einlösbar.</p>
+      <div class="qr-wrapper">
+        <div id="qrcode"></div>
+      </div>
+      <p class="code-number" id="codeNumber"></p>
+    </div>
+  </div>
+  <!-- QRCode.js via CDN: generiert QR‑Codes im Browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    // Beim Laden der Seite Initialisierung vornehmen
+    document.addEventListener('DOMContentLoaded', function() {
+      // Lese den nächsten freien Code aus dem LocalStorage; falle zurück auf 1
+      let nextId = parseInt(localStorage.getItem('edvin_nextId')) || 1;
+      // Klickevent für den Abgabe‑Button
+      document.getElementById('submitBtn').addEventListener('click', function() {
+        let guessValue = document.getElementById('guessInput').value.trim();
+        // Eingabe in Zahl umwandeln
+        let guess = parseInt(guessValue, 10);
+        // Validierung: nur positive Ganzzahlen zulässig
+        if (isNaN(guess) || guess <= 0) {
+          alert('Bitte gib eine gültige Zahl ein.');
+          return;
+        }
+        // Speichere die Schätzung optional im LocalStorage
+        localStorage.setItem('edvin_guess_' + nextId, guess);
+        // Erzeuge die eindeutige Nummer und erhöhe den Zähler
+        let uniqueNumber = nextId;
+        nextId++;
+        localStorage.setItem('edvin_nextId', nextId);
+        // QR‑Code generieren
+        generateQRCode(uniqueNumber.toString());
+        // Ausgabe der analog lesbaren Nummer
+        document.getElementById('codeNumber').innerText = uniqueNumber.toString();
+        // Blende das Formular aus und zeige das Ergebnis
+        document.getElementById('formContainer').style.display = 'none';
+        document.getElementById('resultContainer').style.display = 'block';
+      });
+    });
+    // Funktion zum Generieren des QR‑Codes
+    function generateQRCode(text) {
+      let qrDiv = document.getElementById('qrcode');
+      qrDiv.innerHTML = '';
+      new QRCode(qrDiv, {
+        text: text,
+        width: 200,
+        height: 200,
+        colorDark: '#688F68',
+        colorLight: '#FFFFFF',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+  </script>
+</body>
+</html>
